@@ -1,6 +1,6 @@
 import modelo.Libro;
 import modelo.Usuario;
-import servicios.GestorRecursos;
+import gestores.GestorRecursos;
 
 public class Main {
     public static void main(String[] args) {
