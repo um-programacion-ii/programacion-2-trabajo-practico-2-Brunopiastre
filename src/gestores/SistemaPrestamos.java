@@ -18,17 +18,7 @@ public class SistemaPrestamos {
             System.out.println("🔔 Notificar a " + siguiente.getUsuario().getNombre()
                     + ": el recurso '" + recurso.getIdentificador() + "' está disponible.");
 
-            // 👇 Si querés hacer el préstamo automático, podés hacer esto:
-            // recurso.prestar(siguiente.getUsuario());
-            // recurso.actualizarEstado(EstadoRecurso.PRESTADO);
         }
     }
-
-    // Podés agregar esto más adelante:
-    public void realizarPrestamo(Usuario usuario, RecursoDigital recurso) {
-        // Validar si está disponible o reservar si no está
-        // recurso.prestar(usuario);
-    }
-
-    // Getters, setters o más lógica si es necesario
 }
+
