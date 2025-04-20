@@ -3,5 +3,6 @@ package modelo;
 public enum EstadoRecurso {
     DISPONIBLE,
     PRESTADO,
-    RESERVADO
+    RESERVADO,
+    NO_DISPONIBLE
 }

@@ -56,4 +56,6 @@ public abstract class RecursoBase implements RecursoDigital, Prestable {
     public String toString() {
         return titulo + " [" + estado + "]";
     }
+
+    public abstract CategoriaRecurso getCategoria();
 }

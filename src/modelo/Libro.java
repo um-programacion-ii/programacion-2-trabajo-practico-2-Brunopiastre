@@ -1,19 +1,15 @@
 package modelo;
 
 public class Libro extends RecursoBase {
-    private String autor;
+    private final CategoriaRecurso categoria;
 
-    public Libro(String id, String titulo, String autor) {
+    public Libro(String titulo, String id, CategoriaRecurso categoria) {
         super(id, titulo);
-        this.autor = autor;
-    }
-
-    public String getAutor() {
-        return autor;
+        this.categoria = categoria;
     }
 
     @Override
-    public String toString() {
-        return "Libro: " + titulo + " de " + autor + " [" + estado + "]";
+    public CategoriaRecurso getCategoria() {
+        return categoria;
     }
 }
