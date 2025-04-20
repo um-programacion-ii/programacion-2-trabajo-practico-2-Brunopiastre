@@ -1,24 +1,49 @@
 package gestores;
 
-import modelo.Reserva;
+import modelo.Prestamo;
+import modelo.RecursoBase;
 import modelo.Usuario;
-import modelo.EstadoRecurso;
-import interfaces.RecursoDigital;
+import modelo.Reserva;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SistemaPrestamos {
+    private final List<Prestamo> prestamos = new ArrayList<>();
+    private final SistemaReservas sistemaReservas;
 
-    private final SistemaReservas sistemaReservas = new SistemaReservas();
+    public SistemaPrestamos(SistemaReservas sistemaReservas) {
+        this.sistemaReservas = sistemaReservas;
+    }
 
-    public void devolverRecurso(RecursoDigital recurso) {
-        recurso.actualizarEstado(EstadoRecurso.DISPONIBLE);
-        System.out.println("📦 Recurso '" + recurso.getIdentificador() + "' devuelto con éxito.");
+    public boolean realizarPrestamo(Usuario usuario, RecursoBase recurso) {
+        if (usuario == null || recurso == null || !recurso.estaDisponible()) return false;
 
-        if (sistemaReservas.tieneReservasPendientes(recurso.getIdentificador())) {
-            Reserva siguiente = sistemaReservas.obtenerProximaReserva(recurso.getIdentificador());
-            System.out.println("🔔 Notificar a " + siguiente.getUsuario().getNombre()
-                    + ": el recurso '" + recurso.getIdentificador() + "' está disponible.");
+        Prestamo prestamo = new Prestamo(usuario, recurso);
+        prestamos.add(prestamo);
+        recurso.prestar(usuario);
+        return true;
+    }
 
+    public boolean devolverRecurso(String idRecurso) {
+        for (Prestamo prestamo : prestamos) {
+            if (prestamo.getRecurso().getIdentificador().equals(idRecurso)) {
+                prestamo.getRecurso().devolver();
+                System.out.println("✅ Recurso devuelto correctamente.");
+
+                if (sistemaReservas.hayReservasPendientes(idRecurso)) {
+                    Reserva siguiente = sistemaReservas.procesarProximaReserva(idRecurso);
+                    prestamo.getRecurso().prestar(siguiente.getUsuario());
+                    System.out.println("📢 El recurso fue entregado automáticamente a: " + siguiente.getUsuario().getNombre());
+                }
+
+                return true;
+            }
         }
+        return false;
+    }
+
+    public List<Prestamo> getTodos() {
+        return prestamos;
     }
 }
-

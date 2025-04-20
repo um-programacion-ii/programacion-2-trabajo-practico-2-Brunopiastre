@@ -16,7 +16,11 @@ public class GestorUsuarios {
         return usuarios.get(id);
     }
 
-    public Map<String, Usuario> getTodosLosUsuarios() {
+    public boolean existeUsuario(String id) {
+        return usuarios.containsKey(id);
+    }
+
+    public Map<String, Usuario> getTodos() {
         return usuarios;
     }
 }

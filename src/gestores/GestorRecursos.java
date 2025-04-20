@@ -2,24 +2,21 @@ package gestores;
 
 import modelo.RecursoBase;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GestorRecursos {
-    private final List<RecursoBase> recursos = new ArrayList<>();
+    private final Map<String, RecursoBase> recursos = new HashMap<>();
 
-    public void agregar(RecursoBase recurso) {
-        recursos.add(recurso);
+    public void registrarRecurso(RecursoBase recurso) {
+        recursos.put(recurso.getIdentificador(), recurso);
     }
 
-    public List<RecursoBase> listar() {
+    public RecursoBase buscarRecursoPorId(String id) {
+        return recursos.get(id);
+    }
+
+    public Map<String, RecursoBase> getTodos() {
         return recursos;
-    }
-
-    public RecursoBase buscarPorTitulo(String titulo) {
-        return recursos.stream()
-                .filter(r -> r.getTitulo().equalsIgnoreCase(titulo))
-                .findFirst()
-                .orElse(null);
     }
 }

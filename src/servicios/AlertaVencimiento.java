@@ -15,14 +15,14 @@ public class AlertaVencimiento {
 
             if (vencimiento != null) {
                 if (vencimiento.equals(hoy.plusDays(1))) {
-                    System.out.println("⚠️  Alerta: El recurso '" + prestamo.getRecurso().getTitulo()
-                            + "' vence mañana para el usuario " + prestamo.getUsuario().getNombre());
+                    System.out.println("🔔 ALERTA: El recurso '" + prestamo.getRecurso().getTitulo()
+                            + "' vence MAÑANA para el usuario " + prestamo.getUsuario().getNombre());
                 } else if (vencimiento.equals(hoy)) {
-                    System.out.println("❗ El recurso '" + prestamo.getRecurso().getTitulo()
+                    System.out.println("⚠️ URGENTE: El recurso '" + prestamo.getRecurso().getTitulo()
                             + "' vence HOY para el usuario " + prestamo.getUsuario().getNombre());
                 } else if (vencimiento.isBefore(hoy)) {
-                    System.out.println("⛔ El recurso '" + prestamo.getRecurso().getTitulo()
-                            + "' ya está vencido para el usuario " + prestamo.getUsuario().getNombre());
+                    System.out.println("⛔ VENCIDO: El recurso '" + prestamo.getRecurso().getTitulo()
+                            + "' ya venció para el usuario " + prestamo.getUsuario().getNombre());
                 }
             }
         }

@@ -1,47 +1,117 @@
+import gestores.*;
+import gestores.SistemaPrestamosConcurrente;
+import interfaces.Notificable;
 import modelo.*;
-import gestores.GestorReportes;
 import servicios.AlertaVencimiento;
+import servicios.NotificadorConsola;
+import servicios.ServicioNotificaciones;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
-        // Registro de usuarios
-        Usuario usuario1 = new Usuario("U001", "Juan Pérez", "juan@email.com");
-        Usuario usuario2 = new Usuario("U002", "María López", "maria@email.com");
+        Scanner scanner = new Scanner(System.in);
 
-        // Registro de recursos
-        Libro libro = new Libro("El Principito", "L001");
-        Revista revista = new Revista("Muy Interesante", "R001");
-        Audiolibro audio = new Audiolibro("Cuentos en voz alta", "A001");
+        // Inicialización
+        GestorUsuarios gestorUsuarios = new GestorUsuarios();
+        GestorRecursos gestorRecursos = new GestorRecursos();
+        SistemaReservas sistemaReservas = new SistemaReservas();
+        Notificable canal = new NotificadorConsola();
+        ServicioNotificaciones servicioNotificaciones = new ServicioNotificaciones(canal);
+        SistemaPrestamosConcurrente sistemaPrestamos = new SistemaPrestamosConcurrente(sistemaReservas, servicioNotificaciones);
+        GestorReportes gestorReportes = null;
 
-        // Préstamos simulados
-        List<Prestamo> prestamos = new ArrayList<>();
-        prestamos.add(new Prestamo(usuario1, libro));
-        prestamos.add(new Prestamo(usuario2, revista));
-        prestamos.add(new Prestamo(usuario2, audio));
-        prestamos.add(new Prestamo(usuario1, audio));
+        boolean salir = false;
 
-        // Reportes
-        GestorReportes reportes = new GestorReportes(prestamos);
+        while (!salir) {
+            System.out.println("\n========= MENÚ =========");
+            System.out.println("1. Registrar usuario");
+            System.out.println("2. Registrar recurso");
+            System.out.println("3. Realizar préstamo");
+            System.out.println("4. Devolver recurso");
+            System.out.println("5. Ver reportes");
+            System.out.println("6. Ver alertas de vencimiento");
+            System.out.println("0. Salir");
+            System.out.print("Seleccioná una opción: ");
+            String opcion = scanner.nextLine();
 
-        System.out.println("\n=== 📘 Reporte: Recursos Más Prestados ===");
-        reportes.recursosMasPrestados().forEach(entry ->
-                System.out.println(entry.getKey().getTitulo() + " → " + entry.getValue() + " préstamos"));
+            switch (opcion) {
+                case "1":
+                    System.out.print("ID de usuario: ");
+                    String id = scanner.nextLine();
+                    System.out.print("Nombre: ");
+                    String nombre = scanner.nextLine();
+                    System.out.print("Email: ");
+                    String email = scanner.nextLine();
+                    gestorUsuarios.registrarUsuario(new Usuario(id, nombre, email));
+                    System.out.println("✅ Usuario registrado.");
+                    break;
 
-        System.out.println("\n=== 👤 Reporte: Usuarios Más Activos ===");
-        reportes.usuariosMasActivos().forEach(entry ->
-                System.out.println(entry.getKey().getNombre() + " → " + entry.getValue() + " préstamos"));
+                case "2":
+                    System.out.print("Título del recurso: ");
+                    String titulo = scanner.nextLine();
+                    System.out.print("ID del recurso: ");
+                    String idRecurso = scanner.nextLine();
+                    System.out.print("Tipo (LIBRO, REVISTA, AUDIOLIBRO): ");
+                    String tipo = scanner.nextLine().toUpperCase();
+                    RecursoBase recurso = switch (tipo) {
+                        case "REVISTA" -> new Revista(titulo, idRecurso);
+                        case "AUDIOLIBRO" -> new Audiolibro(titulo, idRecurso);
+                        default -> new Libro(titulo, idRecurso);
+                    };
+                    gestorRecursos.registrarRecurso(recurso);
+                    System.out.println("✅ Recurso registrado.");
+                    break;
 
-        System.out.println("\n=== 🧾 Reporte: Préstamos por Tipo de Recurso ===");
-        reportes.prestamosPorTipo().forEach((tipo, cantidad) ->
-                System.out.println(tipo + " → " + cantidad));
+                case "3":
+                    System.out.print("ID del usuario: ");
+                    String idUsuario = scanner.nextLine();
+                    System.out.print("ID del recurso: ");
+                    String idRec = scanner.nextLine();
+                    Usuario u = gestorUsuarios.buscarUsuarioPorId(idUsuario);
+                    RecursoBase r = gestorRecursos.buscarRecursoPorId(idRec);
+                    if (u != null && r != null) {
+                        sistemaPrestamos.agregarSolicitud(new SolicitudPrestamo(u, r));
+                        System.out.println("✅ Solicitud enviada.");
+                    } else {
+                        System.out.println("❌ Usuario o recurso no encontrado.");
+                    }
+                    Thread.sleep(1000);
+                    break;
 
-        // Alertas de vencimiento
-        System.out.println("\n=== 🛎️  Alertas de Vencimiento ===");
-        AlertaVencimiento alertas = new AlertaVencimiento();
-        alertas.verificarVencimientos(prestamos);
+                case "4":
+                    System.out.print("ID del recurso a devolver: ");
+                    String idDevolver = scanner.nextLine();
+                    sistemaPrestamos.devolverRecurso(idDevolver);
+                    break;
+
+                case "5":
+                    gestorReportes = new GestorReportes(sistemaPrestamos.getTodos());
+                    gestorReportes.mostrarReporteRecursosMasPrestados();
+                    gestorReportes.mostrarReporteUsuariosMasActivos();
+                    gestorReportes.mostrarReportePorTipo();
+                    gestorReportes.exportarRecursosMasPrestados("reporte_recursos.txt");
+                    break;
+
+                case "6":
+                    AlertaVencimiento alerta = new AlertaVencimiento();
+                    alerta.verificarVencimientos(sistemaPrestamos.getTodos());
+                    break;
+
+                case "0":
+                    salir = true;
+                    sistemaPrestamos.apagarProcesador();
+                    System.out.println("👋 Cerrando sistema...");
+                    break;
+
+                default:
+                    System.out.println("❌ Opción inválida.");
+                    break;
+            }
+        }
+        scanner.close();
     }
 }

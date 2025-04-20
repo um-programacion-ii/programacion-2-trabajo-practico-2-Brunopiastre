@@ -38,4 +38,8 @@ public class Prestamo {
     public boolean estaVencido() {
         return LocalDate.now().isAfter(fechaDevolucion);
     }
+
+    public void setFechaDevolucion(LocalDate fechaDevolucion) {
+        this.fechaDevolucion = fechaDevolucion;
+    }
 }
