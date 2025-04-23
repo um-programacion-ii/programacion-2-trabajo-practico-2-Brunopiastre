@@ -13,6 +13,7 @@ public class Consola {
     private final ServicioNotificaciones servicioNotificaciones;
     private final Scanner scanner;
     private SistemaRecordatorios recordatorios;
+    private final GeneradorReportesAsincrono generadorReportes;
 
     public Consola() {
         gestorUsuarios = new GestorUsuarios();
@@ -21,6 +22,7 @@ public class Consola {
         Notificable canal = new NotificadorConsola();
         servicioNotificaciones = new ServicioNotificaciones(canal);
         sistemaPrestamos = new SistemaPrestamosConcurrente(sistemaReservas, servicioNotificaciones);
+        generadorReportes = new GeneradorReportesAsincrono();
         scanner = new Scanner(System.in);
     }
 
@@ -35,7 +37,7 @@ public class Consola {
             System.out.println("2. Registrar recurso");
             System.out.println("3. Realizar préstamo");
             System.out.println("4. Devolver recurso");
-            System.out.println("5. Ver reportes");
+            System.out.println("5. Generar reportes");
             System.out.println("6. Ver alertas de vencimiento manual");
             System.out.println("7. Ver historial de alertas");
             System.out.println("8. Configurar preferencias de notificación");
@@ -48,7 +50,7 @@ public class Consola {
                 case "2" -> registrarRecurso();
                 case "3" -> realizarPrestamo();
                 case "4" -> devolverRecurso();
-                case "5" -> verReportes();
+                case "5" -> generarReportesEnSegundoPlano();
                 case "6" -> verAlertas();
                 case "7" -> HistorialAlertas.mostrar();
                 case "8" -> configurarNotificaciones();
@@ -56,6 +58,7 @@ public class Consola {
                     salir = true;
                     sistemaPrestamos.apagarProcesador();
                     recordatorios.detener();
+                    generadorReportes.apagar();
                     System.out.println("👋 Cerrando sistema...");
                 }
                 default -> System.out.println("❌ Opción inválida.");
@@ -114,12 +117,8 @@ public class Consola {
         sistemaPrestamos.devolverRecurso(idDevolver);
     }
 
-    private void verReportes() {
-        GestorReportes reportes = new GestorReportes(sistemaPrestamos.getTodos());
-        reportes.mostrarReporteRecursosMasPrestados();
-        reportes.mostrarReporteUsuariosMasActivos();
-        reportes.mostrarReportePorTipo();
-        reportes.exportarRecursosMasPrestados("reporte_recursos.txt");
+    private void generarReportesEnSegundoPlano() {
+        generadorReportes.generar(sistemaPrestamos.getTodos());
     }
 
     private void verAlertas() {
