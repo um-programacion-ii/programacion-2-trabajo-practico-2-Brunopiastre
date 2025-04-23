@@ -1,10 +1,11 @@
 package servicios;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 
 public class HistorialAlertas {
-    private static final List<String> historial = new ArrayList<>();
+    private static final List<String> historial = Collections.synchronizedList(new ArrayList<>());
 
     public static void registrar(String mensaje) {
         historial.add(mensaje);
