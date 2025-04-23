@@ -6,9 +6,10 @@ import modelo.RecursoBase;
 import modelo.Usuario;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SistemaReservas {
-    private final Map<String, Queue<Reserva>> reservasPorRecurso = new HashMap<>();
+    private final Map<String, Queue<Reserva>> reservasPorRecurso = new ConcurrentHashMap<>();
 
     public void realizarReserva(Usuario usuario, RecursoBase recurso) {
         reservasPorRecurso
