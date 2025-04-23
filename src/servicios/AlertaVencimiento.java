@@ -14,16 +14,22 @@ public class AlertaVencimiento {
             LocalDate vencimiento = prestamo.getFechaDevolucion();
 
             if (vencimiento != null) {
+                String mensaje;
                 if (vencimiento.equals(hoy.plusDays(1))) {
-                    System.out.println("🔔 ALERTA: El recurso '" + prestamo.getRecurso().getTitulo()
-                            + "' vence MAÑANA para el usuario " + prestamo.getUsuario().getNombre());
+                    mensaje = "🔔 ALERTA: El recurso '" + prestamo.getRecurso().getTitulo()
+                            + "' vence MAÑANA para el usuario " + prestamo.getUsuario().getNombre();
                 } else if (vencimiento.equals(hoy)) {
-                    System.out.println("⚠️ URGENTE: El recurso '" + prestamo.getRecurso().getTitulo()
-                            + "' vence HOY para el usuario " + prestamo.getUsuario().getNombre());
+                    mensaje = "⚠️ URGENTE: El recurso '" + prestamo.getRecurso().getTitulo()
+                            + "' vence HOY para el usuario " + prestamo.getUsuario().getNombre();
                 } else if (vencimiento.isBefore(hoy)) {
-                    System.out.println("⛔ VENCIDO: El recurso '" + prestamo.getRecurso().getTitulo()
-                            + "' ya venció para el usuario " + prestamo.getUsuario().getNombre());
+                    mensaje = "⛔ VENCIDO: El recurso '" + prestamo.getRecurso().getTitulo()
+                            + "' ya venció para el usuario " + prestamo.getUsuario().getNombre();
+                } else {
+                    continue;
                 }
+
+                System.out.println(mensaje);
+                HistorialAlertas.registrar(mensaje);
             }
         }
     }

@@ -1,5 +1,6 @@
 package gestores;
 
+import modelo.EstadoReserva;
 import modelo.Reserva;
 import modelo.RecursoBase;
 import modelo.Usuario;
@@ -13,7 +14,9 @@ public class SistemaReservas {
         reservasPorRecurso
                 .computeIfAbsent(recurso.getIdentificador(), k -> new LinkedList<>())
                 .add(new Reserva(usuario, recurso));
-        System.out.println("📌 Reserva registrada para el recurso '" + recurso.getTitulo() + "' por el usuario " + usuario.getNombre());
+
+        System.out.println("📌 Reserva registrada para el recurso '" + recurso.getTitulo() +
+                "' por el usuario " + usuario.getNombre());
     }
 
     public Reserva obtenerProximaReserva(String idRecurso) {
@@ -23,7 +26,14 @@ public class SistemaReservas {
 
     public Reserva procesarProximaReserva(String idRecurso) {
         Queue<Reserva> cola = reservasPorRecurso.get(idRecurso);
-        return (cola != null) ? cola.poll() : null;
+        if (cola != null) {
+            Reserva siguiente = cola.poll();
+            if (siguiente != null) {
+                siguiente.setEstado(EstadoReserva.ATENDIDA);
+            }
+            return siguiente;
+        }
+        return null;
     }
 
     public boolean hayReservasPendientes(String idRecurso) {
@@ -38,7 +48,9 @@ public class SistemaReservas {
         } else {
             System.out.println("📋 Cola de reservas:");
             for (Reserva r : cola) {
-                System.out.println("- " + r.getUsuario().getNombre() + " (reservado en " + r.getFechaReserva() + ")");
+                System.out.println("- " + r.getUsuario().getNombre()
+                        + " (reservado en " + r.getFechaReserva()
+                        + ") Estado: " + r.getEstado());
             }
         }
     }

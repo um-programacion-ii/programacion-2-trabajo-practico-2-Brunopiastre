@@ -1,6 +1,6 @@
 package modelo;
 
-public enum TipoRecurso {
+public enum CategoriaRecurso {
     LIBRO,
     REVISTA,
     AUDIOLIBRO
